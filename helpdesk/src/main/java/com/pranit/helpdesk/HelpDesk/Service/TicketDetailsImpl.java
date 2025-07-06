@@ -29,7 +29,6 @@ public class TicketDetailsImpl implements TicketDetailsService {
     @Override
     public ResponseEntity<ApiResponse> createTicket(TicketDTO req){
         int userDetails=userRepo.findUserDetailsByUserId(req.getUserId());
-
         System.out.println(userDetails.getUserId());
         //Add exception and here later for tickets
         TicketDetails newTicket = new TicketDetails();
