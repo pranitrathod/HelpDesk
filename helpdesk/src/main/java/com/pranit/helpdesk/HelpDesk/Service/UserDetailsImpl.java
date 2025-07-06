@@ -33,6 +33,13 @@ public class UserDetailsImpl implements userDetailsService {
             return new ResponseEntity<>(new ApiResponse("User Created!",true,LocalDateTime.now(),200), HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<Object> getUser(Long user_id) {
+        UserDetails user=userRepoo.findUserDetailsByUserId(user_id);
+
+        return new ResponseEntity<>(user,HttpStatus.OK);
+    }
+
 
 
 }

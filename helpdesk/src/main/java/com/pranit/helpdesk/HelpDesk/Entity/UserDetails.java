@@ -20,7 +20,7 @@ public class UserDetails {
     private int id;
 
     @Column(name="user_Id")
-    private int userId;
+    private Long userId;
 
     @Column(name="name")
     private String userName;

@@ -8,5 +8,5 @@ import org.springframework.http.ResponseEntity;
 public interface userDetailsService {
 
     ResponseEntity<ApiResponse> createUser(UserDTO request);
-
+    ResponseEntity<Object> getUser(Long user_id);
 }

@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -23,6 +26,12 @@ public class TicketDetails {
 
     @Column(name="description")
     private String description;
+
+    @Column(name="createdAt")
+    private LocalDate createAt;
+
+    @Column(name="updatedAt")
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

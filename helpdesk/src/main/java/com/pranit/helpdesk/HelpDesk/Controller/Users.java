@@ -19,4 +19,10 @@ public class Users {
     public ResponseEntity<ApiResponse> createUser(@RequestBody UserDTO request) {
         return userDetails.createUser(request);
     }
+    @GetMapping("/User/{user_id}")
+    public ResponseEntity<Object> getUser(@PathVariable("user_id") @RequestBody Long user_id) {
+
+        return userDetails.getUser(user_id);
+
+    }
 }
