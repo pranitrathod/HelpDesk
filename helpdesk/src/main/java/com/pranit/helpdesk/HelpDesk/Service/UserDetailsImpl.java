@@ -36,7 +36,6 @@ public class UserDetailsImpl implements userDetailsService {
     @Override
     public ResponseEntity<Object> getUser(Long user_id) {
         UserDetails user=userRepoo.findUserDetailsByUserId(user_id);
-
         return new ResponseEntity<>(user,HttpStatus.OK);
     }
 
