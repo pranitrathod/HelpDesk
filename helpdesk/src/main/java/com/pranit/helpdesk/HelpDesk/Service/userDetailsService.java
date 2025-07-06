@@ -6,5 +6,7 @@ import com.pranit.helpdesk.HelpDesk.Model.UserDTO;
 import org.springframework.http.ResponseEntity;
 
 public interface userDetailsService {
+    
     ResponseEntity<ApiResponse> createUser(UserDTO request);
+    
 }
