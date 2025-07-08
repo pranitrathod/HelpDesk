@@ -28,21 +28,27 @@ public class TicketDetailsImpl implements TicketDetailsService {
     @Override
     public ResponseEntity<ApiResponse> createTicket(TicketDTO req){
 
+        TicketDetails ticketDetails=ticketRepo.findTicketDetailsByUserId(req.getUserId());
         UserDetails userDetails=userRepo.findUserDetailsByUserId(req.getUserId());
-        if(userDetails!=null){
-
+        if(ticketDetails==null)
+        {
         TicketDetails newTicket = new TicketDetails();
         newTicket.setTitle(req.getTitle());
         newTicket.setDescription(req.getDescription());
         newTicket.setUser(userDetails);
         newTicket.setCreatedAt(LocalDate.now());
         newTicket.setStatus(req.getStatus());
-
         ticketRepo.save(newTicket);
-
-        }else{
-            throw new ResourceNotFoundException("Ticket not Found!");
+        }
+        else{
+            if(ticketDetails!=null){
+            throw new ResourceNotFoundException("Ticket Already Raised and its Status is "+ ticketDetails.getStatus());}
         }
         return new ResponseEntity<>(new ApiResponse("Ticket Created!",true, LocalDateTime.now(),200), HttpStatus.OK);
     }
 }
+
+//We have to implement 1 things :
+//1.If ticket already existing filter based on Ticket Id and user_id
+//2.If ticket is present check the status and tell the use it open/inProgress/Closed
+//3.If Check why the hell user_id is getting 1 into the db
