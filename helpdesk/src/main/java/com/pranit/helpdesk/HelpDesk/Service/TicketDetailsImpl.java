@@ -35,7 +35,8 @@ public class TicketDetailsImpl implements TicketDetailsService {
         newTicket.setTitle(req.getTitle());
         newTicket.setDescription(req.getDescription());
         newTicket.setUser(userDetails);
-        newTicket.setCreateAt(LocalDate.now());
+        newTicket.setCreatedAt(LocalDate.now());
+        newTicket.setStatus(req.getStatus());
 
         ticketRepo.save(newTicket);
 

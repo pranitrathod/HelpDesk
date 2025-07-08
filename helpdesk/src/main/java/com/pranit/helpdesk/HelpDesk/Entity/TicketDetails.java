@@ -28,10 +28,13 @@ public class TicketDetails {
     private String description;
 
     @Column(name="createdAt")
-    private LocalDate createAt;
+    private LocalDate createdAt;
 
     @Column(name="updatedAt")
     private LocalDateTime updatedAt;
+
+    @Column(name="status")
+    private String status;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

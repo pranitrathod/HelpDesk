@@ -8,4 +8,5 @@ public class TicketDTO {
     private int userId;
     private String description;
     private String title;
+    private String status;
 }

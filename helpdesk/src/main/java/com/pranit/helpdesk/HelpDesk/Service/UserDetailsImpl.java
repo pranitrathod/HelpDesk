@@ -3,6 +3,7 @@ package com.pranit.helpdesk.HelpDesk.Service;
 import com.pranit.helpdesk.HelpDesk.Entity.UserDetails;
 import com.pranit.helpdesk.HelpDesk.Model.ApiResponse;
 import com.pranit.helpdesk.HelpDesk.Model.UserDTO;
+import com.pranit.helpdesk.HelpDesk.Model.UserDTOResponse;
 import com.pranit.helpdesk.HelpDesk.Repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,8 +36,17 @@ public class UserDetailsImpl implements userDetailsService {
 
     @Override
     public ResponseEntity<Object> getUser(Long user_id) {
+        UserDTOResponse resp=new UserDTOResponse();
+
         UserDetails user=userRepoo.findUserDetailsByUserId(user_id);
-        return new ResponseEntity<>(user,HttpStatus.OK);
+
+        resp.setUserId(user.getUserId());
+        resp.setUserName(user.getUserName());
+        resp.setEmail(user.getEmail());
+        resp.setLocation(user.getLocation());
+
+        return new ResponseEntity<>(resp,HttpStatus.OK);
+
     }
 
 
