@@ -1,10 +1,12 @@
 package com.pranit.helpdesk.HelpDesk.Entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "user")
 @Table(name="ticket_details")
 public class TicketDetails {
 
@@ -27,16 +30,17 @@ public class TicketDetails {
     @Column(name="description")
     private String description;
 
-    @Column(name="createdAt")
+    @Column(name="created_at")
     private LocalDate createdAt;
 
-    @Column(name="updatedAt")
+    @Column(name="updated_at")
     private LocalDateTime updatedAt;
 
     @Column(name="status")
     private String status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private UserDetails user;
 }
