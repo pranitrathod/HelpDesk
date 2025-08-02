@@ -6,13 +6,19 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface UserRepo extends JpaRepository<UserDetails, Long> {
 
-      boolean existsByUserId(Long userId);
+      boolean existsById(Long userId);
 
-      UserDetails findUserDetailsByUserId(Long userId);
+//      UserDetails findUserDetailsByUserId(Long userId);
 
-//     @Query("select UserDetails.userId from UserDetails where UserDetails.userId=:userId")
-      UserDetails findUserDetailsByUserId(int userId);
+
+      UserDetails findUserDetailsById(Long Id);
+
+
+      //   @Query("select UserDetails.userId from UserDetails where UserDetails.userId=:userId")
+//      UserDetails findUserDetailsByUserId(int userId);
 
 }

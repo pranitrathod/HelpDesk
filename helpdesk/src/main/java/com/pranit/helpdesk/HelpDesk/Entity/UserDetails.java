@@ -16,12 +16,12 @@ import java.util.List;
 @Table(name = "user_details")
 public class UserDetails {
 
-@Id
-@Column(name="Id")
+    @Id
+    @Column(name="Id")
     private int id;
 
-    @Column(name="user_Id")
-    private Long userId;
+//    @Column(name="user_Id")
+//    private Long userId;
 
     @Column(name="name")
     private String userName;

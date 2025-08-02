@@ -16,9 +16,7 @@ public class ApiResponse {
     private boolean sucess;
     private LocalDateTime timeStamp;
     private int statusCode;
-    protected class abbc {
-        private String message;
-    }
+
 }
 
 

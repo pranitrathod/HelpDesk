@@ -22,7 +22,7 @@ public class TicketDetails {
     @Id
     @Column(name="ticket_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ticket_id;
+    private Long ticketId;
 
     @Column(name="title")
     private String title;

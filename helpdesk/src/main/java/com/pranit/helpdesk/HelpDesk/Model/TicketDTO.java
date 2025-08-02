@@ -5,8 +5,9 @@ import lombok.Data;
 
 @Data
 public class TicketDTO {
-    private int userId;
+    private Long userId;
     private String description;
     private String title;
     private String status;
+    private Long ticket_Id;
 }
