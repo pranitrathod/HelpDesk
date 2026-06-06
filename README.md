@@ -1,110 +1,106 @@
-# HelpDesk Management System
+# HelpDesk Management Platform
 
-Enterprise-grade HelpDesk platform built using Spring Boot following modern backend engineering practices including JWT security, Kafka-based event processing, centralized exception handling, Docker containerization, and RESTful API design.
+A production-ready HelpDesk Management Platform built using Spring Boot and modern backend engineering practices. The platform enables secure ticket lifecycle management while leveraging event-driven architecture, containerization, automated deployments, and cloud-native hosting.
 
-## Features
+## Architecture
 
-### Authentication & Authorization
+Frontend Client
+↓
+JWT Authentication & Authorization
+↓
+Spring Boot REST APIs
+↓
+Service Layer
+↓
+MySQL Database
 
-* JWT-based Authentication
-* Role-Based Access Control (USER, AGENT, ADMIN)
-* Secure REST APIs using Spring Security
+Event Processing:
+Service Layer
+↓
+Apache Kafka
+↓
+Notification & Workflow Consumers
+
+Deployment:
+Docker Containers
+↓
+CI/CD Pipeline
+↓
+Microsoft Azure
+
+## Key Capabilities
+
+### Security
+
+* JWT Authentication
+* Role-Based Access Control (Admin, Agent, User)
+* Spring Security Integration
+* Protected REST Endpoints
 
 ### Ticket Management
 
-* Create Tickets
-* Assign Tickets
-* Update Ticket Status
-* Add Comments
-* Ticket History Tracking
+* Ticket Creation
+* Ticket Assignment
+* Ticket Status Tracking
+* Comment Management
+* Audit-Friendly Workflow
 
-### Event-Driven Architecture
+### Event-Driven Processing
 
-Apache Kafka is used to publish and process ticket lifecycle events:
+* Ticket Created Events
+* Ticket Assigned Events
+* Ticket Updated Events
+* Real-Time Kafka Event Consumption
 
-* Ticket Created
-* Ticket Assigned
-* Ticket Updated
-* Ticket Resolved
+### Reliability
 
-### Exception Handling
+* Global Exception Handling
+* Request Validation
+* Standardized API Responses
+* Structured Logging
 
-Centralized exception handling using @RestControllerAdvice:
+### Scalability
 
-* Resource Not Found
-* Validation Errors
-* Unauthorized Access
-* Business Exceptions
-* Internal Server Errors
+* Dockerized Services
+* Kafka-Based Asynchronous Processing
+* Stateless API Design
+* Cloud Deployment on Azure
 
-### Technology Stack
+### DevOps
 
-Backend:
+* Docker
+* CI/CD Automation
+* Azure Deployment
+* Environment-Based Configuration
+
+## Technology Stack
+
+Backend
 
 * Java 17
 * Spring Boot 3
 * Spring Security
 * Spring Data JPA
+
+Database
+
 * MySQL
 
-Messaging:
+Messaging
 
 * Apache Kafka
 
-DevOps:
+Cloud & DevOps
 
+* Microsoft Azure
 * Docker
-* Docker Compose
-* Kubernetes
+* CI/CD Pipelines
 
-Testing:
+Testing
 
 * JUnit 5
 * Mockito
 
-Documentation:
+Documentation
 
-* Swagger/OpenAPI
-
-## Architecture
-
-Client
-↓
-Spring Security (JWT)
-↓
-Controller Layer
-↓
-Service Layer
-↓
-Repository Layer
-↓
-MySQL
-
-Service Layer
-↓
-Kafka Producer
-↓
-Kafka Topics
-↓
-Kafka Consumers
-
-## Future Enhancements
-
-* Email Notifications
-* SLA Monitoring
-* Audit Logging
-* Elasticsearch Integration
-* Redis Caching
-* Payment Integration for Premium Support Plans
-* Microservices Migration
-
-## Key Engineering Concepts Demonstrated
-
-* Clean Architecture
-* Layered Design
-* Event-Driven Systems
-* Secure API Development
-* Distributed Messaging
-* Containerization
-* CI/CD Readiness
-
+* Swagger / OpenAPI
