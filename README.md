@@ -72,7 +72,7 @@ ComplaintEventConsumer
    +----> Notification Service
    |
    +----> Audit Service
-   s
+   
 * Ticket Created Events
 * Ticket Assigned Events
 * Ticket Updated Events
