@@ -5,20 +5,20 @@ HelpDesk Management Platform built using Spring Boot and modern backend engineer
 ## Architecture
 
 Frontend Client
-↓
+
 JWT Authentication & Authorization
-↓
+
 Spring Boot REST APIs
-↓
+
 Service Layer
-↓
+
 MySQL Database
 
 Event Processing:
 Service Layer
-↓
+
 Apache Kafka
-↓
+
 Notification & Workflow Consumers
 
 Deployment:
