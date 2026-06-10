@@ -46,7 +46,33 @@ Microsoft Azure
 * Audit-Friendly Workflow
 
 ### Event-Driven Processing
-
+Client
+   |
+   v
+Controller
+   |
+   v
+Service
+   |
+   v
+Database Save
+   |
+   v
+ComplaintEventProducer
+   |
+   v
+Kafka Topic
+(complaint-created)
+   |
+   v
+ComplaintEventConsumer
+   |
+   +----> Email Service
+   |
+   +----> Notification Service
+   |
+   +----> Audit Service
+   s
 * Ticket Created Events
 * Ticket Assigned Events
 * Ticket Updated Events
