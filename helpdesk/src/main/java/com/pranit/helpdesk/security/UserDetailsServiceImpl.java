@@ -1,3 +1,0 @@
-package com.pranit.helpdesk.security;
-import com.pranit.helpdesk.entity.User; import com.pranit.helpdesk.repository.UserRepository; import org.springframework.security.core.userdetails.*;
-public class UserDetailsServiceImpl implements UserDetailsService{private final UserRepository repo;public UserDetailsServiceImpl(UserRepository repo){this.repo=repo;}public UserDetails loadUserByUsername(String username)throws UsernameNotFoundException{User u=repo.findByUsername(username).orElseThrow(()->new UsernameNotFoundException("User not found"));return org.springframework.security.core.userdetails.User.withUsername(u.getUsername()).password(u.getPassword()).roles(u.getRole().name()).build();}}
