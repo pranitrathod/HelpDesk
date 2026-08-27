@@ -1,132 +1,129 @@
 # HelpDesk Management Platform
 
-HelpDesk Management Platform built using Spring Boot and modern backend engineering practices. The platform enables secure ticket lifecycle management while leveraging event-driven architecture, containerization, automated deployments, and cloud-native hosting.
+A production-oriented HelpDesk REST API built with Java 21 and Spring Boot. The project demonstrates secure API design, layered architecture, relational persistence, validation, centralized error handling, containerization, and CI automation.
+
+## What this project demonstrates
+
+- RESTful ticket management
+- User and ticket domain modeling with Spring Data JPA
+- Layered Controller → Service → Repository architecture
+- JWT-based authentication foundation
+- Request validation and centralized exception handling
+- MySQL persistence
+- Health endpoints through Spring Boot Actuator
+- Docker image and local Docker Compose environment
+- GitHub Actions CI with Java 21 and Maven
+- Environment-variable based runtime configuration
+- Kafka/event-driven components retained for asynchronous workflow expansion
 
 ## Architecture
 
-Frontend Client
-
-JWT Authentication & Authorization
-
-Spring Boot REST APIs
-
-Service Layer
-
-MySQL Database
-
-Event Processing:
-Service Layer
-
-Apache Kafka
-
-Notification & Workflow Consumers
-
-Deployment:
-Docker Containers
-↓
-CI/CD Pipeline
-↓
-Microsoft Azure
-
-## Key Capabilities
-
-### Security
-
-* JWT Authentication
-* Role-Based Access Control (Admin, Agent, User)
-* Spring Security Integration
-* Protected REST Endpoints
-
-### Ticket Management
-
-* Ticket Creation
-* Ticket Assignment
-* Ticket Status Tracking
-* Comment Management
-* Audit-Friendly Workflow
-
-### Event-Driven Processing
+```text
 Client
-   |
-   v
-Controller
-   |
-   v
-Service
-   |
-   v
-Database Save
-   |
-   v
-ComplaintEventProducer
-   |
-   v
-Kafka Topic
-(complaint-created)
-   |
-   v
-ComplaintEventConsumer
-   |
-   +----> Email Service
-   |
-   +----> Notification Service
-   |
-   +----> Audit Service
-   
-* Ticket Created Events
-* Ticket Assigned Events
-* Ticket Updated Events
-* Real-Time Kafka Event Consumption
+  |
+  v
+Spring Boot REST API
+  |
+  +--> Controller
+  |
+  +--> Service
+  |
+  +--> Repository
+  |       |
+  |       v
+  |     MySQL
+  |
+  +--> Event layer / Kafka
+          |
+          +--> asynchronous notification/workflow consumers
+```
 
-### Reliability
+## Local development
 
-* Global Exception Handling
-* Request Validation
-* Standardized API Responses
-* Structured Logging
+### Requirements
 
-### Scalability
+- Java 21
+- Maven (or included Maven Wrapper)
+- MySQL 8+
+- Docker Desktop (optional)
 
-* Dockerized Services
-* Kafka-Based Asynchronous Processing
-* Stateless API Design
-* Cloud Deployment on Azure
+### Configuration
 
-### DevOps
+Never commit credentials. Configure these environment variables when deploying:
 
-* Docker
-* CI/CD Automation
-* Azure Deployment
-* Environment-Based Configuration
+```text
+DB_URL
+DB_USERNAME
+DB_PASSWORD
+DDL_AUTO
+JWT_SECRET
+JWT_EXPIRATION
+```
 
-## Technology Stack
+For local development, the application defaults to a local MySQL database named `helpdesk_db`.
 
-Backend
+### Run with Maven
 
-* Java 17
-* Spring Boot 3
-* Spring Security
-* Spring Data JPA
+```bash
+cd helpdesk
+./mvnw test
+./mvnw spring-boot:run
+```
 
-Database
+Windows:
 
-* MySQL
+```bat
+cd helpdesk
+mvnw.cmd test
+mvnw.cmd spring-boot:run
+```
 
-Messaging
+### Run with Docker Compose
 
-* Apache Kafka
+```bash
+cd helpdesk
+./mvnw clean package -DskipTests
 
-Cloud & DevOps
+docker compose up --build
+```
 
-* Microsoft Azure
-* Docker
-* CI/CD Pipelines
+The API is then available on port `8080`.
 
-Testing
+## API areas
 
-* JUnit 5
-* Mockito
+| Area | Purpose |
+|---|---|
+| Authentication | Registration/login foundation |
+| Users | User management |
+| Tickets | Create, read, update and delete tickets |
+| Comments | Ticket comments |
+| Complaints | Complaint workflow |
+| Health | Application health for deployment platforms |
 
-Documentation
+## CI
 
-* Swagger / OpenAPI
+Every push to the main development branches and pull requests targeting `main` run the Maven test suite with Java 21 through GitHub Actions.
+
+## Security notes
+
+- Secrets are supplied through environment variables rather than source control.
+- Use a long, randomly generated `JWT_SECRET` in deployed environments.
+- The database password that existed in earlier repository history should be rotated because Git history is immutable from the application configuration alone.
+- Do not use the sample Docker Compose credentials in production.
+
+## Deployment target
+
+The application is designed to be deployable as a Dockerized Spring Boot service with a managed MySQL/PostgreSQL-compatible database. A free-tier deployment can be used for portfolio demonstration, subject to the provider's current limits.
+
+## Interview discussion points
+
+Be prepared to explain:
+
+1. Why Controller/Service/Repository layers are separated.
+2. How JWT authentication works from login through request filtering.
+3. Why secrets belong in environment variables.
+4. Why database migrations are preferable to relying on `ddl-auto=update` for production.
+5. When Kafka is useful and when synchronous processing is simpler.
+6. How Docker makes the application environment reproducible.
+7. How CI catches compilation/test regressions before deployment.
+8. How the ticket lifecycle can evolve into SLA, assignment, audit and notification workflows.
