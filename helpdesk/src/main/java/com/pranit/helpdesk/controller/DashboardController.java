@@ -1,0 +1,3 @@
+package com.pranit.helpdesk.controller;
+import com.pranit.helpdesk.model.TicketStatus; import com.pranit.helpdesk.service.TicketService; import org.springframework.security.access.prepost.PreAuthorize; import org.springframework.web.bind.annotation.*; import java.util.Map;
+@RestController @RequestMapping("/api/dashboard") @PreAuthorize("hasAnyRole('AGENT','ADMIN')") public class DashboardController{private final TicketService s;public DashboardController(TicketService s){this.s=s;}@GetMapping("/summary")public Map<String,Long> summary(){return Map.of("open",s.count(TicketStatus.OPEN),"assigned",s.count(TicketStatus.ASSIGNED),"inProgress",s.count(TicketStatus.IN_PROGRESS),"resolved",s.count(TicketStatus.RESOLVED),"closed",s.count(TicketStatus.CLOSED));}}
