@@ -1,0 +1,3 @@
+package com.pranit.helpdesk.dto;
+import jakarta.validation.constraints.*;
+public final class AuthDtos { private AuthDtos(){} public record RegisterRequest(@NotBlank String name,@Email @NotBlank String email,@Size(min=8,max=100) String password){} public record LoginRequest(@Email @NotBlank String email,@NotBlank String password){} public record AuthResponse(String token,String email,String role){} }
