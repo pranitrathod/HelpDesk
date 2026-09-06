@@ -6,3 +6,4 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
   List<Ticket> findByRequesterIdOrderByCreatedAtDesc(Long requesterId);
   List<Ticket> findAllByOrderByCreatedAtDesc();
 }
+

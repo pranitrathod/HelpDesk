@@ -4,3 +4,4 @@ public class InvalidTicketStateException extends RuntimeException {
     super(message);
   }
 }
+

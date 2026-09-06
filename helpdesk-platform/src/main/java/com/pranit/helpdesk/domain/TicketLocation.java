@@ -1,5 +1,6 @@
 package com.pranit.helpdesk.domain;
 import jakarta.persistence.*;
+
 @Entity
 @Table(name = "ticket_locations")
 public class TicketLocation {
