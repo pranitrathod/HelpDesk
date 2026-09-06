@@ -16,11 +16,6 @@ public class GlobalExceptionHandler {
   ResponseEntity<Map<String, String>> conflict(ConflictException e) {
     return response(HttpStatus.CONFLICT, e.getMessage());
   }
-  @ExceptionHandler(PaymentGatewayException.class)
-  ResponseEntity<Map<String, String>> gatewayFailure(PaymentGatewayException e) {
-    return response(HttpStatus.BAD_GATEWAY, "The payment provider could not process the request");
-  }
-
   @ExceptionHandler(MethodArgumentNotValidException.class)
   ResponseEntity<Map<String, Object>> invalid(MethodArgumentNotValidException e) {
     Map<String, String> fields = new LinkedHashMap<>();
