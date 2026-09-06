@@ -1,0 +1,25 @@
+package com.pranit.helpdesk.event;
+import java.time.Instant;
+public class TicketEvent {
+  private final String type;
+  private final Long ticketId;
+  private final Long actorId;
+  private final Instant occurredAt = Instant.now();
+  public TicketEvent(String type, Long ticketId, Long actorId) {
+    this.type = type;
+    this.ticketId = ticketId;
+    this.actorId = actorId;
+  }
+  public String getType() {
+    return type;
+  }
+  public Long getTicketId() {
+    return ticketId;
+  }
+  public Long getActorId() {
+    return actorId;
+  }
+  public Instant getOccurredAt() {
+    return occurredAt;
+  }
+}
