@@ -1,3 +1,150 @@
 package com.pranit.helpdesk.dto;
-import com.pranit.helpdesk.domain.*; import jakarta.validation.constraints.*; import java.time.Instant;
-public final class TicketDtos { private TicketDtos(){} public record CreateTicketRequest(@NotBlank @Size(max=200) String title,@NotBlank @Size(max=4000) String description,@NotNull Priority priority){} public record AssignTicketRequest(@NotNull Long agentId){} public record UpdateStatusRequest(@NotNull TicketStatus status){} public record AddCommentRequest(@NotBlank @Size(max=2000) String message){} public record TicketResponse(Long id,String title,String description,Priority priority,TicketStatus status,String requester,String assignee,Instant createdAt,Instant updatedAt,Instant slaDueAt){} public record CommentResponse(Long id,String author,String message,Instant createdAt){} }
+import com.pranit.helpdesk.domain.*;
+import jakarta.validation.constraints.*;
+import java.math.BigDecimal;
+import java.time.Instant;
+public final class TicketDtos {
+  private TicketDtos() {}
+  public static class CreateTicketRequest {
+    @NotBlank @Size(max = 200) private String title;
+    @NotBlank @Size(max = 4000) private String description;
+    @NotNull private Priority priority;
+    @DecimalMin("-90.0") @DecimalMax("90.0") private Double latitude;
+    @DecimalMin("-180.0") @DecimalMax("180.0") private Double longitude;
+    @Size(max = 500) private String address;
+    public String getTitle() {
+      return title;
+    }
+    public void setTitle(String v) {
+      title = v;
+    }
+    public String getDescription() {
+      return description;
+    }
+    public void setDescription(String v) {
+      description = v;
+    }
+    public Priority getPriority() {
+      return priority;
+    }
+    public void setPriority(Priority v) {
+      priority = v;
+    }
+    public Double getLatitude() {
+      return latitude;
+    }
+    public void setLatitude(Double v) {
+      latitude = v;
+    }
+    public Double getLongitude() {
+      return longitude;
+    }
+    public void setLongitude(Double v) {
+      longitude = v;
+    }
+    public String getAddress() {
+      return address;
+    }
+    public void setAddress(String v) {
+      address = v;
+    }
+  }
+  public static class AssignTicketRequest {
+    @NotNull private Long agentId;
+    public Long getAgentId() {
+      return agentId;
+    }
+    public void setAgentId(Long v) {
+      agentId = v;
+    }
+  }
+  public static class UpdateStatusRequest {
+    @NotNull private TicketStatus status;
+    public TicketStatus getStatus() {
+      return status;
+    }
+    public void setStatus(TicketStatus v) {
+      status = v;
+    }
+  }
+  public static class AddCommentRequest {
+    @NotBlank @Size(max = 2000) private String message;
+    private Long parentCommentId;
+    public String getMessage() {
+      return message;
+    }
+    public void setMessage(String v) {
+      message = v;
+    }
+    public Long getParentCommentId() {
+      return parentCommentId;
+    }
+    public void setParentCommentId(Long v) {
+      parentCommentId = v;
+    }
+  }
+  public static class CreatePaymentRequest {
+    @NotNull @DecimalMin("0.01") private BigDecimal amount;
+    @NotBlank @Pattern(regexp = "[A-Z]{3}") private String currency;
+    public BigDecimal getAmount() {
+      return amount;
+    }
+    public void setAmount(BigDecimal v) {
+      amount = v;
+    }
+    public String getCurrency() {
+      return currency;
+    }
+    public void setCurrency(String v) {
+      currency = v;
+    }
+  }
+  public static class TicketResponse {
+    public Long id;
+    public String title, description, requester, assignee;
+    public Priority priority;
+    public TicketStatus status;
+    public Instant createdAt, updatedAt, slaDueAt;
+    public TicketResponse(Long id, String title, String description, Priority priority,
+        TicketStatus status, String requester, String assignee, Instant createdAt,
+        Instant updatedAt, Instant slaDueAt) {
+      this.id = id;
+      this.title = title;
+      this.description = description;
+      this.priority = priority;
+      this.status = status;
+      this.requester = requester;
+      this.assignee = assignee;
+      this.createdAt = createdAt;
+      this.updatedAt = updatedAt;
+      this.slaDueAt = slaDueAt;
+    }
+  }
+  public static class CommentResponse {
+    public Long id, parentCommentId;
+    public String author, message;
+    public Instant createdAt;
+    public CommentResponse(
+        Long id, Long parentCommentId, String author, String message, Instant createdAt) {
+      this.id = id;
+      this.parentCommentId = parentCommentId;
+      this.author = author;
+      this.message = message;
+      this.createdAt = createdAt;
+    }
+  }
+  public static class PaymentResponse {
+    public Long id;
+    public BigDecimal amount;
+    public String currency, reference;
+    public PaymentStatus status;
+    public PaymentResponse(
+        Long id, BigDecimal amount, String currency, String reference, PaymentStatus status) {
+      this.id = id;
+      this.amount = amount;
+      this.currency = currency;
+      this.reference = reference;
+      this.status = status;
+    }
+  }
+}
