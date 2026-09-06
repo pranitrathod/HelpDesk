@@ -1,0 +1,10 @@
+helpdesk:
+  payments:
+    razorpay:
+      base-url: ${RAZORPAY_BASE_URL:https://api.razorpay.com}
+      key-id: ${RAZORPAY_KEY_ID:}
+      key-secret: ${RAZORPAY_KEY_SECRET:}
+    juspay:
+      base-url: ${JUSPAY_BASE_URL:https://api.juspay.in}
+      merchant-id: ${JUSPAY_MERCHANT_ID:}
+      api-key: ${JUSPAY_API_KEY:}
