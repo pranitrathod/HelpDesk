@@ -1,26 +1,30 @@
 package com.pranit.helpdesk.exception;
-import java.util.*;
-import org.springframework.http.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
   @ExceptionHandler(ResourceNotFoundException.class)
-  ResponseEntity<ApiError> notFound(ResourceNotFoundException e) {
-    return error(HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", e.getMessage(), Map.of());
+  ResponseEntity<Map<String, String>> notFound(ResourceNotFoundException e) {
+    return response(HttpStatus.NOT_FOUND, e.getMessage());
   }
-  @ExceptionHandler(InvalidTicketStateException.class)
-  ResponseEntity<ApiError> conflict(InvalidTicketStateException e) {
-    return error(HttpStatus.CONFLICT, "INVALID_TICKET_STATE", e.getMessage(), Map.of());
+  @ExceptionHandler(ConflictException.class)
+  ResponseEntity<Map<String, String>> conflict(ConflictException e) {
+    return response(HttpStatus.CONFLICT, e.getMessage());
   }
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  ResponseEntity<ApiError> invalid(MethodArgumentNotValidException e) {
-    Map<String, String> errors = new LinkedHashMap<>();
+  ResponseEntity<Map<String, Object>> invalid(MethodArgumentNotValidException e) {
+    Map<String, String> fields = new LinkedHashMap<>();
     e.getBindingResult().getFieldErrors().forEach(
-        f -> errors.put(f.getField(), f.getDefaultMessage()));
-    return error(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED", "Request validation failed", errors);
+        error -> fields.put(error.getField(), error.getDefaultMessage()));
+    return ResponseEntity.badRequest().body(
+        Map.of("message", "Request validation failed", "fields", fields));
   }
-  private ResponseEntity<ApiError> error(HttpStatus s, String c, String m, Map<String, String> e) {
-    return ResponseEntity.status(s).body(new ApiError(s.value(), c, m, e));
+  private ResponseEntity<Map<String, String>> response(HttpStatus status, String message) {
+    return ResponseEntity.status(status).body(Map.of("message", message));
   }
 }
