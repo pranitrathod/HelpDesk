@@ -5,6 +5,7 @@ import com.pranit.helpdesk.dto.PaymentDtos.CreatePaymentRequest;
 import com.pranit.helpdesk.dto.PaymentDtos.PaymentResponse;
 import com.pranit.helpdesk.service.PaymentService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,12 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/payments")
+@RequiredArgsConstructor
 public class PaymentController {
-  private final PaymentService paymentService;
 
-  public PaymentController(PaymentService paymentService) {
-    this.paymentService = paymentService;
-  }
+  private final PaymentService paymentService;
 
   @PostMapping("/checkout")
   public ResponseEntity<PaymentResponse> createCheckout(
@@ -32,14 +31,16 @@ public class PaymentController {
 
   @PostMapping("/webhooks/razorpay")
   public ResponseEntity<Void> razorpayWebhook(
-      @RequestHeader("X-Razorpay-Signature") String signature, @RequestBody String payload) {
+      @RequestHeader("X-Razorpay-Signature") String signature,
+      @RequestBody String payload) {
     paymentService.processWebhook(PaymentGateway.RAZORPAY, payload, signature);
     return ResponseEntity.ok().build();
   }
 
   @PostMapping("/webhooks/juspay")
   public ResponseEntity<Void> juspayWebhook(
-      @RequestHeader("x-juspay-signature") String signature, @RequestBody String payload) {
+      @RequestHeader("x-juspay-signature") String signature,
+      @RequestBody String payload) {
     paymentService.processWebhook(PaymentGateway.JUSPAY, payload, signature);
     return ResponseEntity.ok().build();
   }
