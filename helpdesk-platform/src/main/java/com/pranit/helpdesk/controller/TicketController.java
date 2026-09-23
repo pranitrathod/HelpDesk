@@ -1,13 +1,13 @@
 package com.pranit.helpdesk.controller;
 
-import com.pranit.helpdesk.dto.TicketDtos.AddCommentRequest;
-import com.pranit.helpdesk.dto.TicketDtos.AssignTicketRequest;
-import com.pranit.helpdesk.dto.TicketDtos.CommentResponse;
-import com.pranit.helpdesk.dto.TicketDtos.CreatePaymentRequest;
-import com.pranit.helpdesk.dto.TicketDtos.CreateTicketRequest;
-import com.pranit.helpdesk.dto.TicketDtos.PaymentResponse;
-import com.pranit.helpdesk.dto.TicketDtos.TicketResponse;
-import com.pranit.helpdesk.dto.TicketDtos.UpdateStatusRequest;
+import com.pranit.helpdesk.dto.AddCommentRequest;
+import com.pranit.helpdesk.dto.AssignTicketRequest;
+import com.pranit.helpdesk.dto.CommentResponse;
+import com.pranit.helpdesk.dto.CreateTicketPaymentRequest;
+import com.pranit.helpdesk.dto.CreateTicketRequest;
+import com.pranit.helpdesk.dto.TicketPaymentResponse;
+import com.pranit.helpdesk.dto.TicketResponse;
+import com.pranit.helpdesk.dto.UpdateStatusRequest;
 import com.pranit.helpdesk.service.TicketService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -80,16 +80,16 @@ public class TicketController {
   }
 
   @PostMapping("/{ticketId}/payment")
-  public ResponseEntity<PaymentResponse> payment(
+  public ResponseEntity<TicketPaymentResponse> payment(
       @PathVariable Long ticketId,
       @RequestHeader("X-User-Id") Long actorId,
-      @Valid @RequestBody CreatePaymentRequest request) {
+      @Valid @RequestBody CreateTicketPaymentRequest request) {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ticketService.createPayment(ticketId, request, actorId));
   }
 
   @PostMapping("/{ticketId}/payment/refund")
-  public PaymentResponse refund(
+  public TicketPaymentResponse refund(
       @PathVariable Long ticketId, @RequestHeader("X-User-Id") Long actorId) {
     return ticketService.refund(ticketId, actorId);
   }
