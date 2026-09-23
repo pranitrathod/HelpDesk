@@ -1,7 +1,7 @@
 package com.pranit.helpdesk.controller;
 
-import com.pranit.helpdesk.dto.BusinessModuleDtos.ArticleResponse;
-import com.pranit.helpdesk.dto.BusinessModuleDtos.CreateArticleRequest;
+import com.pranit.helpdesk.dto.ArticleResponse;
+import com.pranit.helpdesk.dto.CreateArticleRequest;
 import com.pranit.helpdesk.service.KnowledgeBaseService;
 import jakarta.validation.Valid;
 import java.util.List;
