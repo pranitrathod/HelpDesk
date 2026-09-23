@@ -1,8 +1,8 @@
 package com.pranit.helpdesk.controller;
 
 import com.pranit.helpdesk.domain.PaymentGateway;
-import com.pranit.helpdesk.dto.PaymentDtos.CreatePaymentRequest;
-import com.pranit.helpdesk.dto.PaymentDtos.PaymentResponse;
+import com.pranit.helpdesk.dto.CreatePaymentRequest;
+import com.pranit.helpdesk.dto.PaymentResponse;
 import com.pranit.helpdesk.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
