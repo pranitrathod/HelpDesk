@@ -1,7 +1,7 @@
 package com.pranit.helpdesk.controller;
 
-import com.pranit.helpdesk.dto.BusinessModuleDtos.FeedbackResponse;
-import com.pranit.helpdesk.dto.BusinessModuleDtos.SubmitFeedbackRequest;
+import com.pranit.helpdesk.dto.FeedbackResponse;
+import com.pranit.helpdesk.dto.SubmitFeedbackRequest;
 import com.pranit.helpdesk.service.CustomerFeedbackService;
 import jakarta.validation.Valid;
 import java.util.List;
