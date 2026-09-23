@@ -1,8 +1,8 @@
 package com.pranit.helpdesk.service.impl;
 
 import com.pranit.helpdesk.domain.ServiceCatalogItem;
-import com.pranit.helpdesk.dto.BusinessModuleDtos.CatalogItemResponse;
-import com.pranit.helpdesk.dto.BusinessModuleDtos.CreateCatalogItemRequest;
+import com.pranit.helpdesk.dto.CatalogItemResponse;
+import com.pranit.helpdesk.dto.CreateCatalogItemRequest;
 import com.pranit.helpdesk.exception.ConflictException;
 import com.pranit.helpdesk.exception.ResourceNotFoundException;
 import com.pranit.helpdesk.repository.ServiceCatalogRepository;
