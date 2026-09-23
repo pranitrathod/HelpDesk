@@ -1,105 +1,215 @@
-# HelpDesk Management Platform
+# HelpDesk Backend
 
+A Spring Boot backend for a customer-support system.
 
-HelpDesk Management Platform built using Spring Boot and modern backend engineering practices. The platform enables secure ticket lifecycle management while leveraging event-driven architecture, containerization, automated deployments, and cloud-native hosting.
+The main idea is simple:
 
-## Architecture
+A customer creates a ticket -> the backend applies business rules -> saves it in MySQL -> publishes an event to Kafka -> agents can work on the ticket -> payments can be handled when needed.
 
-Frontend Client
+## How the request flows
 
-JWT Authentication & Authorization
+```
+Client
+  |
+  v
+Controller
+  |
+  v
+DTO + Validation
+  |
+  v
+Service
+  |
+  +----> Domain
+  |
+  +----> Repository ---> MySQL
+  |
+  +----> Kafka
+  |
+  +----> Payment Gateway
+  |
+  v
+Response
+```
 
-Spring Boot REST APIs
+### What each layer does
 
-Service Layer
+- **Controller** - receives the API request and returns the response.
+- **DTO** - defines what comes in and what goes out of the API.
+- **Service** - contains the actual business logic.
+- **Domain** - contains ticket/payment state and controlled state changes.
+- **Repository** - talks to MySQL using Spring Data JPA.
+- **Kafka** - publishes ticket events such as ticket creation, assignment and status changes.
+- **Payment** - hides Razorpay/Juspay specific code behind a common interface.
+- **Exception Handler** - converts exceptions into one consistent API error format.
 
-MySQL Database
+## Example: create a ticket
 
-Event Processing: Service Layer
+```
+POST /api/v1/tickets
+        |
+        v
+TicketController
+        |
+        v
+CreateTicketRequest
+        |
+        v
+TicketService
+        |
+        +--> load requester
+        +--> calculate SLA
+        +--> create Ticket
+        +--> save in MySQL
+        +--> publish event to Kafka
+        |
+        v
+TicketResponse
+```
 
-Apache Kafka
+SLA is based on priority:
 
-Notification & Workflow Consumers
+| Priority | SLA |
+|---|---:|
+| CRITICAL | 4 hours |
+| HIGH | 8 hours |
+| MEDIUM | 24 hours |
+| LOW | 72 hours |
 
-Deployment: Docker Containers ↓ CI/CD Pipeline ↓ Microsoft Azure
+## Ticket flow
 
-## Key Capabilities
+```
+OPEN
+  -> IN_PROGRESS
+  -> WAITING_FOR_USER
+  -> RESOLVED
+  -> CLOSED
+```
 
-### Security
+The service checks whether a status change is valid and blocks operations that should not happen, such as modifying a closed ticket.
 
-- JWT Authentication
-- Role-Based Access Control (Admin, Agent, User)
-- Spring Security Integration
-- Protected REST Endpoints
+## Comments
 
-### Ticket Management
+Tickets support comments and replies.
 
+```
+Ticket
+ ├── Comment
+ │    ├── Reply
+ │    └── Reply
+ └── Comment
+```
 
-- Ticket Creation
-- Ticket Assignment
-- Ticket Status Tracking
-- Comment Management
-- Audit-Friendly Workflow
+A reply uses `parentCommentId`, and the service verifies that the parent belongs to the same ticket.
 
-### Event-Driven Processing
+## Payments
 
-Client | v Controller | v Service | v Database Save | v ComplaintEventProducer | v Kafka Topic (complaint-created) | v ComplaintEventConsumer | +----> Email Service | +----> Notification Service | +----> Audit Service
+There are two payment pieces.
 
-- Ticket Created Events
-- Ticket Assigned Events
-- Ticket Updated Events
-- Real-Time Kafka Event Consumption
+**Payment gateway integration**
 
-### Reliability
+```
+PaymentService
+     |
+     v
+PaymentGatewayRegistry
+     |
+     +---- Razorpay
+     |
+     +---- Juspay
+```
 
+The business code talks to `PaymentGatewayClient`, so it does not depend directly on one provider.
 
-- Global Exception Handling
-- Request Validation
-- Standardized API Responses
-- Structured Logging
+Checkout also uses an `Idempotency-Key` so the same request does not create duplicate transactions.
 
-### Scalability
+**Ticket payment**
 
-- Dockerized Services
-- Kafka-Based Asynchronous Processing
-- Stateless API Design
-- Cloud Deployment on Azure
+```
+PENDING -> AUTHORIZED -> REFUNDED
+```
 
-### DevOps
+Refund is allowed only for an authorized payment.
 
-- Docker
-- CI/CD Automation
-- Azure Deployment
-- Environment-Based Configuration
+## Exception handling
 
-## Technology Stack
+Controllers do not have repeated try/catch blocks.
 
-Backend
+```
+Service
+  |
+  v
+Exception
+  |
+  v
+GlobalExceptionHandler
+  |
+  v
+ApiError
+```
+
+So errors such as not-found, conflict, invalid ticket state, validation failure and payment failure are returned in a consistent format.
+
+## Project structure
+
+```
+helpdesk-platform/src/main/java/com/pranit/helpdesk
+
+├── controller    -> REST APIs
+├── dto           -> request/response classes
+├── service       -> business logic
+├── domain        -> JPA entities + domain behavior
+├── repository    -> database access
+├── event         -> Kafka publishing
+├── payment       -> payment gateway abstraction
+├── exception     -> API errors + global handler
+└── config        -> application/payment config
+```
+
+Each DTO is a separate class, for example:
+
+```
+CreateTicketRequest
+TicketResponse
+AddCommentRequest
+CommentResponse
+CreatePaymentRequest
+PaymentResponse
+```
+
+Lombok is used to remove repetitive getters, setters and constructors. JPA entities intentionally use targeted Lombok annotations instead of `@Data`.
+
+## Technologies used
 
 - Java 17
-- Spring Boot 3
-- Spring Security
+- Spring Boot 3.4
+- Spring Web
 - Spring Data JPA
-
-Database
-
 - MySQL
-
-Messaging
-
 - Apache Kafka
+- Bean Validation
+- Lombok
+- Spring Actuator
+- Razorpay
+- Juspay
 
-Cloud & DevOps
+## Main APIs
 
-- Microsoft Azure
-- Docker
-- CI/CD Pipelines
+| Module | Base path |
+|---|---|
+| Tickets | `/api/v1/tickets` |
+| Service Catalog | `/api/v1/service-catalog` |
+| Knowledge Base | `/api/v1/knowledge-base` |
+| Customer Feedback | `/api/v1/customer-feedback` |
+| Payments | `/api/v1/payments` |
 
-Testing
+## Run locally
 
-- JUnit 5
-- Mockito
+Prerequisites: Java 17, Maven, MySQL and Kafka.
 
-Documentation
+```bash
+cd helpdesk-platform
+./mvnw spring-boot:run
+```
 
-- Swagger / OpenAPI
+The application reads DB, Kafka and payment settings from environment variables.
