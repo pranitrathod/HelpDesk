@@ -1,8 +1,8 @@
 package com.pranit.helpdesk.service.impl;
 
 import com.pranit.helpdesk.domain.CustomerFeedback;
-import com.pranit.helpdesk.dto.BusinessModuleDtos.FeedbackResponse;
-import com.pranit.helpdesk.dto.BusinessModuleDtos.SubmitFeedbackRequest;
+import com.pranit.helpdesk.dto.FeedbackResponse;
+import com.pranit.helpdesk.dto.SubmitFeedbackRequest;
 import com.pranit.helpdesk.exception.ConflictException;
 import com.pranit.helpdesk.repository.CustomerFeedbackRepository;
 import com.pranit.helpdesk.service.CustomerFeedbackService;
