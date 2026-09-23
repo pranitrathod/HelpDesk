@@ -1,7 +1,9 @@
 package com.pranit.helpdesk.service;
-import com.pranit.helpdesk.dto.BusinessModuleDtos.ArticleResponse;
-import com.pranit.helpdesk.dto.BusinessModuleDtos.CreateArticleRequest;
+
+import com.pranit.helpdesk.dto.ArticleResponse;
+import com.pranit.helpdesk.dto.CreateArticleRequest;
 import java.util.List;
+
 public interface KnowledgeBaseService {
   ArticleResponse publish(CreateArticleRequest request);
   List<ArticleResponse> listPublished();

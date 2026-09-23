@@ -1,16 +1,20 @@
 package com.pranit.helpdesk.exception;
+
 import java.time.Instant;
 import java.util.Map;
-public class ApiError {
-  public final Instant timestamp = Instant.now();
-  public final int status;
-  public final String code, message;
-  public final Map<String, String> validationErrors;
-  public ApiError(int s, String c, String m, Map<String, String> e) {
-    status = s;
-    code = c;
-    message = m;
-    validationErrors = e;
+
+public record ApiError(
+    Instant timestamp,
+    int status,
+    String code,
+    String message,
+    Map<String, String> validationErrors) {
+
+  public ApiError(
+      int status,
+      String code,
+      String message,
+      Map<String, String> validationErrors) {
+    this(Instant.now(), status, code, message, validationErrors);
   }
 }
-
