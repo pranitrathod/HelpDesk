@@ -1,73 +1,106 @@
-# HelpDesk Backend
 
-A Spring Boot backend for a customer-support system.
+# HelpDesk Backend Platform
 
-The main idea is simple:
+A Spring Boot backend for a customer-support/helpdesk system.
 
-A customer creates a ticket -> the backend applies business rules -> saves it in MySQL -> publishes an event to Kafka -> agents can work on the ticket -> payments can be handled when needed.
+The primary implementation is the helpdesk-platform module. It demonstrates how a support ticket moves through its lifecycle, how business rules are separated from HTTP handling, how data is persisted in MySQL, how domain events are published to Kafka, how payments are isolated behind gateway interfaces, and how API errors are handled consistently.
 
-## How the request flows
+## What does this system do?
 
-```
-Client
-  |
-  v
-Controller
-  |
-  v
-DTO + Validation
-  |
-  v
-Service
-  |
-  +----> Domain
-  |
-  +----> Repository ---> MySQL
-  |
-  +----> Kafka
-  |
-  +----> Payment Gateway
-  |
-  v
-Response
-```
+A customer creates a support ticket.
 
-### What each layer does
+The backend then:
 
-- **Controller** - receives the API request and returns the response.
-- **DTO** - defines what comes in and what goes out of the API.
-- **Service** - contains the actual business logic.
-- **Domain** - contains ticket/payment state and controlled state changes.
-- **Repository** - talks to MySQL using Spring Data JPA.
-- **Kafka** - publishes ticket events such as ticket creation, assignment and status changes.
-- **Payment** - hides Razorpay/Juspay specific code behind a common interface.
-- **Exception Handler** - converts exceptions into one consistent API error format.
+1. Validates the request.
+2. Creates the ticket.
+3. Calculates an SLA deadline from ticket priority.
+4. Persists the ticket in MySQL.
+5. Publishes a TicketEvent to Kafka.
+6. Allows assignment and status changes.
+7. Allows threaded comments and replies.
+8. Supports ticket payments and refunds.
+9. Returns either a successful response or a centralized API error.
 
-## Example: create a ticket
+Additional modules provide:
 
-```
-POST /api/v1/tickets
-        |
-        v
-TicketController
-        |
-        v
-CreateTicketRequest
-        |
-        v
-TicketService
-        |
-        +--> load requester
-        +--> calculate SLA
-        +--> create Ticket
-        +--> save in MySQL
-        +--> publish event to Kafka
-        |
-        v
-TicketResponse
-```
+- Service catalog
+- Knowledge-base articles
+- Customer feedback / CSAT
+- Payment checkout and webhooks
 
-SLA is based on priority:
+## Request flow
+
+    Client
+      |
+      v
+    Controller
+      |
+      v
+    DTO + Bean Validation
+      |
+      v
+    Service
+      |
+      +------------------+
+      |                  |
+      v                  v
+    Domain           Repository
+      |                  |
+      |                  v
+      |                MySQL
+      |
+      +----> Kafka events
+      |
+      +----> Payment Gateway
+
+Business exceptions are handled centrally:
+
+    Service / Domain
+          |
+          v
+    GlobalExceptionHandler
+          |
+          v
+       ApiError
+
+## Example: creating a ticket
+
+Request:
+
+    POST /api/v1/tickets
+    X-User-Id: 101
+
+    {
+      "title": "Laptop is not connecting to VPN",
+      "description": "VPN fails after entering corporate credentials",
+      "priority": "HIGH"
+    }
+
+Internal flow:
+
+    TicketController
+          |
+          v
+    CreateTicketRequest
+          |
+          | @Valid
+          v
+    TicketServiceImpl
+          |
+          +--> load requester
+          +--> calculate SLA
+          +--> create Ticket
+          +--> save ticket
+          +--> publish TicketEvent
+          |
+          +------> MySQL
+          |
+          +------> Kafka topic: ticket-events
+          |
+          v
+    TicketResponse
+
+SLA rules:
 
 | Priority | SLA |
 |---|---:|
@@ -76,140 +109,236 @@ SLA is based on priority:
 | MEDIUM | 24 hours |
 | LOW | 72 hours |
 
-## Ticket flow
+## Ticket lifecycle
 
-```
-OPEN
-  -> IN_PROGRESS
-  -> WAITING_FOR_USER
-  -> RESOLVED
-  -> CLOSED
-```
+    OPEN
+      |
+      v
+    IN_PROGRESS
+      |
+      v
+    WAITING_FOR_USER
+      |
+      v
+    RESOLVED
+      |
+      v
+    CLOSED
 
-The service checks whether a status change is valid and blocks operations that should not happen, such as modifying a closed ticket.
+The service layer validates state transitions and prevents invalid operations such as modifying a closed ticket.
 
 ## Comments
 
-Tickets support comments and replies.
+Comments support threaded replies:
 
-```
-Ticket
- ├── Comment
- │    ├── Reply
- │    └── Reply
- └── Comment
-```
+    Ticket
+     ├── Comment 1
+     │     ├── Reply 1
+     │     └── Reply 2
+     └── Comment 2
 
-A reply uses `parentCommentId`, and the service verifies that the parent belongs to the same ticket.
+A reply contains parentCommentId.
 
-## Payments
+The service verifies that the parent comment belongs to the same ticket before creating the reply.
 
-There are two payment pieces.
+## Payment design
 
-**Payment gateway integration**
+Payment integration uses an interface-based design:
 
-```
-PaymentService
-     |
-     v
-PaymentGatewayRegistry
-     |
-     +---- Razorpay
-     |
-     +---- Juspay
-```
+    PaymentGatewayClient
+            |
+            +---- RazorpayPaymentGatewayClient
+            |
+            +---- JuspayPaymentGatewayClient
 
-The business code talks to `PaymentGatewayClient`, so it does not depend directly on one provider.
+PaymentGatewayRegistry selects the implementation.
 
-Checkout also uses an `Idempotency-Key` so the same request does not create duplicate transactions.
+Checkout flow:
 
-**Ticket payment**
+    PaymentController
+          |
+          v
+    PaymentService
+          |
+          v
+    PaymentGatewayRegistry
+          |
+          v
+    PaymentGatewayClient
+          |
+          v
+    External payment provider
 
-```
-PENDING -> AUTHORIZED -> REFUNDED
-```
+The checkout endpoint uses Idempotency-Key so a repeated request can return the existing transaction instead of creating another one.
 
-Refund is allowed only for an authorized payment.
+Webhooks are signature-verified before the payment transaction is updated.
 
 ## Exception handling
 
-Controllers do not have repeated try/catch blocks.
+Controllers do not contain repetitive try/catch blocks.
 
-```
-Service
-  |
-  v
-Exception
-  |
-  v
-GlobalExceptionHandler
-  |
-  v
-ApiError
-```
+Instead:
 
-So errors such as not-found, conflict, invalid ticket state, validation failure and payment failure are returned in a consistent format.
+    Controller
+        |
+        v
+    Service
+        |
+        +--> ResourceNotFoundException
+        +--> ConflictException
+        +--> InvalidTicketStateException
+        +--> PaymentGatewayException
+        |
+        v
+    @RestControllerAdvice
+        |
+        v
+    ApiError
+
+Example error:
+
+    {
+      "timestamp": "2026-09-23T18:00:00Z",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND",
+      "message": "Ticket with identifier 42 was not found"
+    }
 
 ## Project structure
 
-```
-helpdesk-platform/src/main/java/com/pranit/helpdesk
+    helpdesk-platform/
+    └── src/main/java/com/pranit/helpdesk
+        ├── controller
+        ├── dto
+        ├── domain
+        ├── repository
+        ├── service
+        │   └── impl
+        ├── event
+        ├── payment
+        ├── exception
+        └── config
 
-├── controller    -> REST APIs
-├── dto           -> request/response classes
-├── service       -> business logic
-├── domain        -> JPA entities + domain behavior
-├── repository    -> database access
-├── event         -> Kafka publishing
-├── payment       -> payment gateway abstraction
-├── exception     -> API errors + global handler
-└── config        -> application/payment config
-```
+Read the project in this order when reviewing the code:
 
-Each DTO is a separate class, for example:
+    Controller
+        -> DTO
+        -> Service
+        -> Domain / Repository
+        -> Event / Payment integration
+        -> Response
 
-```
-CreateTicketRequest
-TicketResponse
-AddCommentRequest
-CommentResponse
-CreatePaymentRequest
-PaymentResponse
-```
+## Technologies
 
-Lombok is used to remove repetitive getters, setters and constructors. JPA entities intentionally use targeted Lombok annotations instead of `@Data`.
-
-## Technologies used
-
+Backend:
 - Java 17
 - Spring Boot 3.4
 - Spring Web
 - Spring Data JPA
-- MySQL
-- Apache Kafka
 - Bean Validation
 - Lombok
-- Spring Actuator
+
+Database:
+- MySQL
+
+Messaging:
+- Apache Kafka
+- Spring Kafka
+
+Payments:
 - Razorpay
 - Juspay
+- Idempotent checkout
+- Webhook signature verification
+
+Operations:
+- Spring Actuator
+- Environment-based configuration
+- Docker-ready configuration
 
 ## Main APIs
 
-| Module | Base path |
+| Module | Base endpoint |
 |---|---|
-| Tickets | `/api/v1/tickets` |
-| Service Catalog | `/api/v1/service-catalog` |
-| Knowledge Base | `/api/v1/knowledge-base` |
-| Customer Feedback | `/api/v1/customer-feedback` |
-| Payments | `/api/v1/payments` |
+| Tickets | /api/v1/tickets |
+| Service Catalog | /api/v1/service-catalog |
+| Knowledge Base | /api/v1/knowledge-base |
+| Customer Feedback | /api/v1/customer-feedback |
+| Payments | /api/v1/payments |
+
+### Ticket APIs
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| POST | /api/v1/tickets | Create ticket |
+| GET | /api/v1/tickets/{ticketId} | Get ticket |
+| GET | /api/v1/tickets | List tickets |
+| PATCH | /api/v1/tickets/{ticketId}/assignee | Assign ticket |
+| PATCH | /api/v1/tickets/{ticketId}/status | Change status |
+| POST | /api/v1/tickets/{ticketId}/comments | Add comment/reply |
+| GET | /api/v1/tickets/{ticketId}/comments | List comments |
+| POST | /api/v1/tickets/{ticketId}/payment | Create ticket payment |
+| POST | /api/v1/tickets/{ticketId}/payment/refund | Refund payment |
+
+## Configuration
+
+The application uses environment variables:
+
+    DB_URL
+    DB_USERNAME
+    DB_PASSWORD
+    KAFKA_BOOTSTRAP_SERVERS
+
+    RAZORPAY_BASE_URL
+    RAZORPAY_KEY_ID
+    RAZORPAY_KEY_SECRET
+
+    JUSPAY_BASE_URL
+    JUSPAY_MERCHANT_ID
+    JUSPAY_API_KEY
+
+JPA uses ddl-auto: validate, so the expected database schema must already exist.
 
 ## Run locally
 
-Prerequisites: Java 17, Maven, MySQL and Kafka.
+Prerequisites:
 
-```bash
-cd helpdesk-platform
-./mvnw spring-boot:run
-```
+- Java 17
+- Maven
+- MySQL
+- Kafka
 
-The application reads DB, Kafka and payment settings from environment variables.
+Run:
+
+    cd helpdesk-platform
+    ./mvnw spring-boot:run
+
+Windows:
+
+    cd helpdesk-platform
+    mvnw.cmd spring-boot:run
+
+## What this project demonstrates
+
+- Layered Spring Boot architecture
+- REST API design
+- DTO/entity separation
+- Bean Validation
+- Transaction boundaries
+- JPA relationships
+- Domain state transitions
+- Global exception handling
+- Kafka event publishing
+- Payment gateway abstraction
+- Idempotency
+- Webhook verification
+- Environment-based configuration
+
+The important idea is the flow:
+
+    HTTP request
+       -> validation
+       -> business logic
+       -> database / external integration
+       -> event publication
+       -> API response
