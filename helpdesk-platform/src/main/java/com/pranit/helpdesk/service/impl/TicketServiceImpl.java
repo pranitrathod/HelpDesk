@@ -8,14 +8,14 @@ import com.pranit.helpdesk.domain.TicketComment;
 import com.pranit.helpdesk.domain.TicketPayment;
 import com.pranit.helpdesk.domain.PaymentStatus;
 import com.pranit.helpdesk.domain.TicketStatus;
-import com.pranit.helpdesk.dto.TicketDtos.AddCommentRequest;
-import com.pranit.helpdesk.dto.TicketDtos.AssignTicketRequest;
-import com.pranit.helpdesk.dto.TicketDtos.CommentResponse;
-import com.pranit.helpdesk.dto.TicketDtos.CreatePaymentRequest;
-import com.pranit.helpdesk.dto.TicketDtos.CreateTicketRequest;
-import com.pranit.helpdesk.dto.TicketDtos.PaymentResponse;
-import com.pranit.helpdesk.dto.TicketDtos.TicketResponse;
-import com.pranit.helpdesk.dto.TicketDtos.UpdateStatusRequest;
+import com.pranit.helpdesk.dto.AddCommentRequest;
+import com.pranit.helpdesk.dto.AssignTicketRequest;
+import com.pranit.helpdesk.dto.CommentResponse;
+import com.pranit.helpdesk.dto.CreateTicketPaymentRequest;
+import com.pranit.helpdesk.dto.CreateTicketRequest;
+import com.pranit.helpdesk.dto.TicketPaymentResponse;
+import com.pranit.helpdesk.dto.TicketResponse;
+import com.pranit.helpdesk.dto.UpdateStatusRequest;
 import com.pranit.helpdesk.event.TicketEvent;
 import com.pranit.helpdesk.event.TicketEventPublisher;
 import com.pranit.helpdesk.exception.InvalidTicketStateException;
@@ -152,8 +152,8 @@ public class TicketServiceImpl implements TicketService {
   }
 
   @Override
-  public PaymentResponse createPayment(
-      Long id, CreatePaymentRequest request, Long actorId) {
+  public TicketPaymentResponse createPayment(
+      Long id, CreateTicketPaymentRequest request, Long actorId) {
     Ticket ticket = ticket(id);
 
     if (payments.findByTicketId(id).isPresent()) {
@@ -175,7 +175,7 @@ public class TicketServiceImpl implements TicketService {
   }
 
   @Override
-  public PaymentResponse refund(Long id, Long actorId) {
+  public TicketPaymentResponse refund(Long id, Long actorId) {
     Ticket ticket = ticket(id);
     TicketPayment payment =
         payments.findByTicketId(id)
@@ -254,8 +254,8 @@ public class TicketServiceImpl implements TicketService {
         comment.getCreatedAt());
   }
 
-  private PaymentResponse paymentDto(TicketPayment payment) {
-    return new PaymentResponse(
+  private TicketPaymentResponse paymentDto(TicketPayment payment) {
+    return new TicketPaymentResponse(
         payment.getId(),
         payment.getAmount(),
         payment.getCurrency(),
