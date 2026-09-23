@@ -1,8 +1,8 @@
 package com.pranit.helpdesk.service.impl;
 
 import com.pranit.helpdesk.domain.KnowledgeArticle;
-import com.pranit.helpdesk.dto.BusinessModuleDtos.ArticleResponse;
-import com.pranit.helpdesk.dto.BusinessModuleDtos.CreateArticleRequest;
+import com.pranit.helpdesk.dto.ArticleResponse;
+import com.pranit.helpdesk.dto.CreateArticleRequest;
 import com.pranit.helpdesk.exception.ConflictException;
 import com.pranit.helpdesk.exception.ResourceNotFoundException;
 import com.pranit.helpdesk.repository.KnowledgeArticleRepository;
