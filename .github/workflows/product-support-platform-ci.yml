@@ -23,4 +23,4 @@ jobs:
           cache: maven
           cache-dependency-path: "product-support-platform/**/pom.xml"
       - name: Build and test platform
-        run: mvn -B -f product-support-platform/pom.xml clean verify
+        run: mvn -U -B -f product-support-platform/pom.xml clean verify
