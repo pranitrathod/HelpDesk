@@ -1,0 +1,3 @@
+package com.pranit.productsupport.core.api;
+import com.pranit.productsupport.core.service.PaymentWebhookService;import org.springframework.http.MediaType;import org.springframework.http.ResponseEntity;import org.springframework.web.bind.annotation.*;
+@RestController public class PaymentWebhookController {private final PaymentWebhookService service;public PaymentWebhookController(PaymentWebhookService s){service=s;}@PostMapping(value="/internal/v1/webhooks/razorpay",consumes=MediaType.APPLICATION_JSON_VALUE) public ResponseEntity<Void> webhook(@RequestBody byte[] body,@RequestHeader(value="X-Razorpay-Signature",required=false) String signature){service.handle(body,signature);return ResponseEntity.ok().build();}}

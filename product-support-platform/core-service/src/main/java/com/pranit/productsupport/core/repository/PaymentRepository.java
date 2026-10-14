@@ -1,0 +1,3 @@
+package com.pranit.productsupport.core.repository;
+import com.pranit.productsupport.core.domain.Payment; import java.util.List; import java.util.Optional; import org.springframework.data.jpa.repository.JpaRepository;
+public interface PaymentRepository extends JpaRepository<Payment,Long>{ Optional<Payment> findFirstByQuote_IdAndStatusOrderByCreatedAtDesc(Long quoteId,String status); Optional<Payment> findByProviderAndProviderOrderId(String provider,String providerOrderId); Optional<Payment> findByIdAndQuote_Ticket_Customer_Id(Long id,Long customerId); List<Payment> findByQuote_IdOrderByCreatedAtDesc(Long quoteId); }

@@ -1,0 +1,80 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-local_mysql_change_me}
+      MYSQL_DATABASE: product_support
+    ports: ["3306:3306"]
+    volumes: ["mysql-data:/var/lib/mysql"]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+  kafka:
+    image: apache/kafka:4.1.0
+    hostname: kafka
+    ports: ["29092:29092"]
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    volumes: ["kafka-data:/var/lib/kafka/data"]
+
+  core-service:
+    build: { context: ., dockerfile: Dockerfile, args: { MODULE: core-service } }
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SERVER_PORT: 8081
+      DB_URL: jdbc:mysql://mysql:3306/product_support?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD:-local_mysql_change_me}
+      JWT_SECRET: ${JWT_SECRET:-local-only-change-this-secret-to-a-random-value-at-least-32-bytes}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-}
+      RAZORPAY_WEBHOOK_SECRET: ${RAZORPAY_WEBHOOK_SECRET:-}
+    ports: ["8081:8081"]
+    depends_on:
+      mysql: { condition: service_healthy }
+      kafka: { condition: service_started }
+    restart: on-failure
+
+  api-bff:
+    build: { context: ., dockerfile: Dockerfile, args: { MODULE: api-bff } }
+    environment:
+      SERVER_PORT: 8080
+      CORE_SERVICE_URL: http://core-service:8081
+      JWT_SECRET: ${JWT_SECRET:-local-only-change-this-secret-to-a-random-value-at-least-32-bytes}
+    ports: ["8080:8080"]
+    depends_on: [core-service]
+    restart: on-failure
+
+  notification-worker:
+    build: { context: ., dockerfile: Dockerfile, args: { MODULE: notification-worker } }
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SERVER_PORT: 8082
+      DB_URL: jdbc:mysql://mysql:3306/product_support?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD:-local_mysql_change_me}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      mysql: { condition: service_healthy }
+      kafka: { condition: service_started }
+    restart: on-failure
+
+volumes:
+  mysql-data:
+  kafka-data:

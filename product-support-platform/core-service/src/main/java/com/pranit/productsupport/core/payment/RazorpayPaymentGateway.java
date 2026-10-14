@@ -1,0 +1,8 @@
+package com.pranit.productsupport.core.payment;
+import com.fasterxml.jackson.databind.JsonNode;import java.util.Map;import org.springframework.beans.factory.annotation.Value;import org.springframework.context.annotation.Profile;import org.springframework.http.HttpHeaders;import org.springframework.http.MediaType;import org.springframework.stereotype.Component;import org.springframework.web.client.RestClient;
+@Component @Profile("!local") public class RazorpayPaymentGateway implements PaymentGateway {
+ private final RestClient client;private final String keyId;
+ public RazorpayPaymentGateway(@Value("${app.payments.razorpay-key-id}") String keyId,@Value("${app.payments.razorpay-key-secret}") String keySecret){if(keyId==null||keyId.isBlank()||keySecret==null||keySecret.isBlank())throw new IllegalStateException("Razorpay credentials must be configured outside local profile");this.keyId=keyId;this.client=RestClient.builder().baseUrl("https://api.razorpay.com").defaultHeaders(h->h.setBasicAuth(keyId,keySecret)).build();}
+ public GatewayOrder createOrder(long amount,String currency,String receipt,String description){JsonNode response=client.post().uri("/v1/orders").contentType(MediaType.APPLICATION_JSON).body(Map.of("amount",amount,"currency",currency,"receipt",receipt,"notes",Map.of("description",description))).retrieve().body(JsonNode.class);if(response==null||response.path("id").asText().isBlank())throw new IllegalStateException("Payment provider did not return an order ID");return new GatewayOrder(response.path("id").asText());}
+ public String providerName(){return "RAZORPAY";}public String checkoutKeyId(){return keyId;}
+}

@@ -1,0 +1,1 @@
+package com.pranit.productsupport.bff;import org.springframework.boot.SpringApplication;import org.springframework.boot.autoconfigure.SpringBootApplication;@SpringBootApplication public class ProductSupportBffApplication{public static void main(String[] args){SpringApplication.run(ProductSupportBffApplication.class,args);}}

@@ -1,0 +1,3 @@
+package com.pranit.productsupport.core.service;
+import com.pranit.productsupport.contracts.CreateTicketRequest; import java.nio.charset.StandardCharsets; import java.security.MessageDigest; import java.security.NoSuchAlgorithmException; import java.util.HexFormat;
+public final class RequestHash {private RequestHash(){} public static String ticket(Long userId,CreateTicketRequest r){try{String canonical=userId+"|"+r.orderItemId()+"|"+r.issueDescription().trim()+"|"+(r.priority()==null?"MEDIUM":r.priority().name());return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(canonical.getBytes(StandardCharsets.UTF_8)));}catch(NoSuchAlgorithmException e){throw new IllegalStateException("SHA-256 unavailable",e);}}}

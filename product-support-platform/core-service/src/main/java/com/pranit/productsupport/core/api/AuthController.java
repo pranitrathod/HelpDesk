@@ -1,0 +1,3 @@
+package com.pranit.productsupport.core.api;
+import com.pranit.productsupport.contracts.*; import com.pranit.productsupport.core.service.AuthService; import jakarta.validation.Valid; import org.springframework.http.HttpStatus; import org.springframework.web.bind.annotation.*;
+@RestController @RequestMapping("/internal/v1/auth") public class AuthController {private final AuthService service;public AuthController(AuthService s){service=s;}@PostMapping("/register") @ResponseStatus(HttpStatus.CREATED) public AuthResponse register(@Valid @RequestBody RegisterRequest r){return service.register(r);}@PostMapping("/login") public AuthResponse login(@Valid @RequestBody LoginRequest r){return service.login(r);}}

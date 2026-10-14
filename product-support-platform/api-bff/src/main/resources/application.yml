@@ -1,0 +1,16 @@
+server:
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+spring:
+  application:
+    name: product-support-bff
+  jackson:
+    default-property-inclusion: non_null
+management:
+  endpoints.web.exposure.include: health,info,metrics,prometheus
+  endpoint.health.probes.enabled: true
+app:
+  core-service-url: ${CORE_SERVICE_URL:http://localhost:8081}
+  security.jwt-secret: ${JWT_SECRET:local-only-change-this-secret-to-a-random-value-at-least-32-bytes}
+logging:
+  pattern.level: "%5p [${spring.application.name:app},%X{requestId:-}]"

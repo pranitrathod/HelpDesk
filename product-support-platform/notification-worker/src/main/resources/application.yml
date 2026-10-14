@@ -1,0 +1,21 @@
+server:
+  port: ${SERVER_PORT:8082}
+spring:
+  application.name: product-support-notification-worker
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/product_support?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:local_mysql_change_me}
+    hikari.maximum-pool-size: ${DB_POOL_MAX:5}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    consumer:
+      group-id: product-support-notification-worker
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    listener:
+      ack-mode: record
+management.endpoints.web.exposure.include: health,info,metrics,prometheus
+app.kafka.events-topic: product-support.events.v1

@@ -1,0 +1,7 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+app:
+  payments:
+    mode: mock

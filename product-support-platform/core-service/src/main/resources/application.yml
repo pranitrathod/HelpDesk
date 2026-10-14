@@ -1,0 +1,66 @@
+server:
+  port: ${SERVER_PORT:8081}
+  shutdown: graceful
+spring:
+  profiles:
+    default: local
+  application:
+    name: product-support-core
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/product_support?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:local_mysql_change_me}
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX:20}
+      minimum-idle: 3
+      connection-timeout: 3000
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        order_inserts: true
+        order_updates: true
+  flyway:
+    enabled: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+        delivery.timeout.ms: 120000
+        request.timeout.ms: 30000
+  jackson:
+    default-property-inclusion: non_null
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+app:
+  security:
+    jwt-secret: ${JWT_SECRET:local-only-change-this-secret-to-a-random-value-at-least-32-bytes}
+    jwt-issuer: product-support-platform
+    jwt-ttl-minutes: 30
+  kafka:
+    events-topic: product-support.events.v1
+  payments:
+    razorpay-key-id: ${RAZORPAY_KEY_ID:}
+    razorpay-key-secret: ${RAZORPAY_KEY_SECRET:}
+    razorpay-webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:}
+    quote-expiry-hours: 72
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:app},%X{requestId:-}]"
