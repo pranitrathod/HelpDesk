@@ -297,4 +297,8 @@ The application uses environment variables:
     JUSPAY_MERCHANT_ID
     JUSPAY_API_KEY
 
+
+    <img width="534" height="940" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/cd09ff58-f2ea-424e-8b8e-aa35435be573" />
+
+
 JPA uses ddl-auto: validate, so the expected database schema must already exist.
