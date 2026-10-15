@@ -298,7 +298,8 @@ The application uses environment variables:
     JUSPAY_API_KEY
 
 
-    <img width="534" height="940" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/cd09ff58-f2ea-424e-8b8e-aa35435be573" />
+<img width="534" height="940" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/4f38fe64-dee1-4759-96ea-177a0429113a" />
 
+<img width="524" height="1986" alt="mermaid-diagram (1)" src="https://github.com/user-attachments/assets/67818e7e-3448-4c1c-8ea5-c451dddbd1e6" />
 
-JPA uses ddl-auto: validate, so the expected database schema must already exist.
+<img width="1972" height="1382" alt="mermaid-diagram (3)" src="https://github.com/user-attachments/assets/f408049c-92e5-456f-a4c0-8ea3c1f8cd16" />
